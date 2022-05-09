@@ -1,0 +1,31 @@
+#name Operators taking references
+#exit 1
+#input
+#code
+oper1 = {
+    print arg1
+    print (arg1)
+} : "Reference"
+oper1 "a string"
+var = "a second string"
+oper1 var
+oper2 = "Reference" : {
+    (arg0) = "a string"
+    arg0 = arg1
+    (arg0) = "another string"
+} : "Reference"
+var1 oper2 var2
+print var1
+print var2
+oper1 nonexistentvariable
+#output
+<Reference>
+a string
+<Reference>
+a second string
+a string
+another string
+<Reference>
+NameException: Variable not found: 'nonexistentvariable'
+3:5 in 'tests/current'
+16:1 in 'tests/current'

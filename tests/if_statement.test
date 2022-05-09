@@ -1,0 +1,32 @@
+#name If statements
+#exit 0
+#input
+line of text
+line of text
+line of text
+difference line of text
+#code
+i = "some string"
+j = 10
+(i == "some string") * {
+    print "i = 'some string'"
+}
+(i != "some string") * {
+    print "i != 'some string'"
+}
+(j == 5) * {
+    print "j == 5"
+}
+(j != 5) * {
+    print "j != 5"
+}
+((input "") == (input "")) * {
+    print "inputs were equal"
+}
+((input "") == (input "")) * {
+    print "inputs were equal"
+}
+#output
+i = 'some string'
+j != 5
+inputs were equal

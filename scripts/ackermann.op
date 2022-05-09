@@ -1,0 +1,7 @@
+ack = ("Value" : {
+	(arg0 == 0) * (return arg1 + 1)
+	(arg1 == 0) * {return (return (arg0 - 1) ack 1)}
+	return (arg0 - 1) ack (arg0 ack (arg1 - 1))
+} : "Value")
+
+print 3 ack 3

@@ -1,0 +1,21 @@
+#name Print literal values
+#exit 0
+
+#input
+
+#code
+print "String literal"
+print 10
+print 10.5
+print None
+print True
+print False
+
+
+#output
+String literal
+10
+10.5
+None
+True
+False

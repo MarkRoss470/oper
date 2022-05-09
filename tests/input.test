@@ -1,0 +1,12 @@
+#name String input
+#exit 0
+#input
+some string
+a second string
+#code
+print (input "string: ")
+string = (input "a prompt ")
+print string
+#output
+string: some string
+a prompt a second string

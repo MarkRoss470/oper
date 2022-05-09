@@ -1,0 +1,27 @@
+try ({
+    10 / 2
+})
+catch {
+    print "not run - no errors"
+}
+try ({
+    1 / 0
+})
+catch {
+    print (message exception)
+    print (extype exception)
+}
+try ({
+    int "not an int"
+})
+catch {
+    print (message exception)
+    print (extype exception)
+}
+try ({
+    "" ""
+})
+catch {
+    print (message exception)
+    print (extype exception)
+}

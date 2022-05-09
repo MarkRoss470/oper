@@ -1,0 +1,6 @@
+print "String literal"
+print 10
+print 10.5
+print None
+print True
+print False

@@ -1,0 +1,18 @@
+#name Custom operators
+#exit 0
+#input
+#code
+oper1 = {
+    print arg1
+} : "Value"
+oper1 "a string"
+oper2 = "Value" : {
+    print arg0 + arg1
+    return arg0 + (arg1 * 2)
+} : "Value"
+print 100 oper2 20 oper2 1
+#output
+a string
+21
+122
+144

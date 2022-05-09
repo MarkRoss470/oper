@@ -1,0 +1,3 @@
+print (input "string: ")
+string = (input "a prompt ")
+print string

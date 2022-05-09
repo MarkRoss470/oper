@@ -1,0 +1,7 @@
+#name Unmatched quote
+#exit 1
+#input
+#code
+"
+#output
+Unmatched quote at 1:1

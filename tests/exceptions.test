@@ -1,0 +1,41 @@
+#name Exceptions
+#exit 1
+#input
+#code
+try ({
+    10 / 2
+})
+catch {
+    print "not run - no errors"
+}
+try ({
+    1 / 0
+})
+catch {
+    print (message exception)
+    print (extype exception)
+}
+try ({
+    int "not an int"
+})
+catch {
+    print (message exception)
+    print (extype exception)
+}
+try ({
+    "" ""
+})
+catch {
+    print (message exception)
+    print (extype exception)
+}
+"CustomException" throw "Custom message"
+#output
+Division by zero
+ZeroDivisionException
+Invalid integer literal: 'not an int'
+ArgumentException
+'' is not an operator
+TypeException
+CustomException: Custom message
+28:1 in 'tests/current'

@@ -1,0 +1,15 @@
+#name Nested statements
+#exit 0
+#input
+data
+more data
+#code
+print (1 + 2) + (3 + 4)
+print (input "") + (input "")
+print "third print" + (print "first print") + (print "second print")
+#output
+10
+datamore data
+first print
+second print
+third printNoneNone

@@ -1,0 +1,5 @@
+variable = "string"
+print variable
+variable = 0
+print variable
+

@@ -1,0 +1,79 @@
+#name Comparisons
+#exit 0
+#input
+#code
+print 0 == 0
+print 0 == 1
+print -10 == -10
+print -10 == 100
+print 0 == 0.0
+print 7 == (7.5 - 0.5)
+print "string" == "string"
+print "a string" == "a different string"
+print 0 != 0
+print 0 != 1
+print -10 != -10
+print -10 != 100
+print 0 != 0.0
+print 7 != (7.5 - 0.5)
+print "string" != "string"
+print "a string" != "a different string"
+print 0 > 0
+print 10 > 0
+print 10 > 5
+print -10 > -5
+print 0 > 10
+print 7.5 > 7.5
+print 7.5 > -100
+print 7.5 > 7.45
+print 7.5 > 7.55
+print 0 >= 0
+print 0 >= -30
+print 0 >= 20
+print 100.75 >= 1000
+print 123.45 >= 30
+print 100.7 >= 100.7
+print 30 <= 100
+print 100 <= 30
+print 50 <= 50
+print 42.35 <= 50.4
+print 45.6 <= 2
+print 3000.7 <= 3000.7
+#output
+True
+False
+True
+False
+True
+True
+True
+False
+False
+True
+False
+True
+False
+False
+False
+True
+False
+True
+True
+False
+False
+False
+True
+True
+False
+True
+True
+False
+False
+True
+True
+True
+False
+True
+True
+False
+True

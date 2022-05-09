@@ -1,0 +1,12 @@
+i = "some string"
+{
+    print i
+}
+block = {
+    j = "another string"
+    print j
+}
+block
+j = "a third string"
+block
+print j

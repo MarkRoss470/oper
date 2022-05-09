@@ -1,0 +1,16 @@
+oper1 = {
+    print arg1
+    print (arg1)
+} : "Reference"
+oper1 "a string"
+var = "a second string"
+oper1 var
+oper2 = "Reference" : {
+    (arg0) = "a string"
+    arg0 = arg1
+    (arg0) = "another string"
+} : "Reference"
+var1 oper2 var2
+print var1
+print var2
+oper1 nonexistentvariable

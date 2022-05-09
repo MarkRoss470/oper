@@ -1,0 +1,23 @@
+#name Calling things other than operators
+#exit 0
+#input
+#code
+try({} "")
+catch {print (extype exception) + " " + (message exception)}
+try("" "")
+catch {print (extype exception) + " " + (message exception)}
+try(0 "")
+catch {print (extype exception) + " " + (message exception)}
+try(None "")
+catch {print (extype exception) + " " + (message exception)}
+try(12.3 "")
+catch {print (extype exception) + " " + (message exception)}
+try((return 10) "")
+catch {print (extype exception) + " " + (message exception)}
+#output
+TypeException '<Block: 1:5>' is not an operator
+TypeException '' is not an operator
+TypeException '0' is not an operator
+TypeException 'None' is not an operator
+TypeException '12.3' is not an operator
+TypeException '<ReturnValue: '10'>' is not an operator

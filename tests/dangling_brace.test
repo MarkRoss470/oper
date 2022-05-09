@@ -1,0 +1,8 @@
+#name Unclosed brace
+#exit 1
+#input
+#code
+{
+
+#output
+Unmatched brace at 1:1

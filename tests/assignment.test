@@ -1,0 +1,11 @@
+#name Assignment 
+#exit 0
+#input
+#code
+variable = "string"
+print variable
+variable = 0
+print variable
+#output
+string
+0

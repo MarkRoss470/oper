@@ -1,0 +1,7 @@
+#name Unclosed paren
+#exit 1
+#input
+#code
+(
+#output
+Unmatched paren at 1:1

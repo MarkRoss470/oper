@@ -1,0 +1,14 @@
+#name Block execution
+#exit 0
+#input
+#code
+{
+    print "In a block"
+}
+block = {
+    print "In a named block"
+}
+block
+#output
+In a block
+In a named block

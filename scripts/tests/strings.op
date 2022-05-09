@@ -1,0 +1,7 @@
+print "a string " + "another string"
+print "a string that's about to have an int added to it" + 12345
+print "a string that's about to have a float added to it" + 12345.6
+print "a string that's about to have none added to it" + None
+print "a string that's about to have a bool added to it" + True
+print "some string" - 5
+print 10 - "some long string"

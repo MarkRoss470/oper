@@ -1,0 +1,21 @@
+#name Block scope
+#exit 0
+#input
+#code
+i = "some string"
+{
+    print i
+}
+block = {
+    j = "another string"
+    print j
+}
+block
+j = "a third string"
+block
+print j
+#output
+some string
+another string
+another string
+a third string

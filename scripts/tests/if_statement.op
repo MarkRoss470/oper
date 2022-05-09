@@ -1,0 +1,20 @@
+i = "some string"
+j = 10
+(i == "some string") * {
+    print "i = 'some string'"
+}
+(i != "some string") * {
+    print "i != 'some string'"
+}
+(j == 5) * {
+    print "j == 5"
+}
+(j != 5) * {
+    print "j != 5"
+}
+((input "") == (input "")) * {
+    print "inputs were equal"
+}
+((input "") == (input "")) * {
+    print "inputs were equal"
+}
