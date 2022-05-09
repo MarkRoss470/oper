@@ -1,0 +1,16 @@
+#hello world in oper
+print "Hello, world!"
+
+#any block literal will be executed
+{
+    print "In a block"
+}
+
+#traditional assignments, python-style casts
+i = (int (input "enter a number: "))
+
+#bool * anything will return none if the bool is false, and the other value if true
+#this is used for if statements
+(i == 10) * {
+    print "i is 10"
+}

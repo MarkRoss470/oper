@@ -3,9 +3,9 @@ CXX=g++
 CPP_SOURCES=$(shell find . -name "*.cpp")
 OBJS=$(patsubst ./%.cpp,./build/%.o,$(CPP_SOURCES))
 
-.PHONY=main test clean fuzz-setup afl fuzz-reset
+.PHONY=all test clean
 
-default : ./build/oper
+dall : ./build/oper
 	./build/oper test.op
 
 ./build/oper: $(OBJS)
