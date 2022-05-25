@@ -13,4 +13,4 @@ struct lexerToken
 };
 
 void print_tokens(std::vector<struct lexerToken> tokens);
-std::shared_ptr<std::vector<struct lexerToken>> tokenise(std::string script);
+std::vector<struct lexerToken> tokenise(std::string script);

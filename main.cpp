@@ -9,9 +9,9 @@
 
 namespace fs = std::filesystem;
 
-
 int main(int argc, char** argv)
 {    
+    
     if(argc == 1)
     {
         //TODO: interpreter from stdin
@@ -38,8 +38,16 @@ int main(int argc, char** argv)
         return 1;
     }
     
-    std::shared_ptr<std::vector<struct lexerToken>> tokens = tokenise(scriptCode);
-    if(tokens == nullptr)return 1;
+    std::vector<struct lexerToken> tokens;
+    
+    try
+    {
+        tokens = tokenise(scriptCode);
+    }
+    catch(...)
+    {
+        return 1;
+    }
     
     std::shared_ptr<ASTNode> scriptAST = parseAST(tokens, argv[1]);
     //std::cout << *scriptAST;
@@ -47,6 +55,7 @@ int main(int argc, char** argv)
     if(scriptAST == nullptr)return 1;
 
     return executeScript(scriptAST);
+    
     
     return 0;
 }

@@ -14,9 +14,9 @@ void print_tokens(std::vector<struct lexerToken> tokens)
     }
 }
 
-std::shared_ptr<std::vector<struct lexerToken>> tokenise(std::string script)
+std::vector<struct lexerToken> tokenise(std::string script)
 {
-    std::shared_ptr<std::vector<struct lexerToken>> tokens (new std::vector<struct lexerToken>());
+    std::vector<struct lexerToken> tokens;
     if(script[script.length() - 1] != '\n')script += '\n';
     intmax_t line = 1;
     intmax_t lineStart = -1;
@@ -24,7 +24,7 @@ std::shared_ptr<std::vector<struct lexerToken>> tokenise(std::string script)
     {
         if(script[i] == '\n')
         {
-            tokens->push_back(lexerToken {"NEWLINE", "\n", line, i - lineStart});
+            tokens.push_back(lexerToken {"NEWLINE", "\n", line, i - lineStart});
             line++;
             lineStart = i;
             continue;
@@ -56,9 +56,9 @@ std::shared_ptr<std::vector<struct lexerToken>> tokenise(std::string script)
             {
                 while(!isspace(script[++i]));
                 std::cout << "invalid token '" << script.substr(numberStart, i-numberStart) << "'\n";
-                return nullptr;
+                throw nullptr;
             }
-            tokens->push_back(lexerToken {isFloat ? "FLOAT_LITERAL" : "INTEGER_LITERAL", script.substr(numberStart, i-numberStart+1), line, numberStart - lineStart});
+            tokens.push_back(lexerToken {isFloat ? "FLOAT_LITERAL" : "INTEGER_LITERAL", script.substr(numberStart, i-numberStart+1), line, numberStart - lineStart});
             continue;
         }
         //string literal
@@ -72,7 +72,7 @@ std::shared_ptr<std::vector<struct lexerToken>> tokenise(std::string script)
                 if(script[i] == '\n')
                 {
                     std::cout << "Unmatched quote at " << line << ":" << stringStart - lineStart << "\n";
-                    return nullptr;
+                    throw nullptr;
                 }
                 if(script[i] == '"')break;
                 if(script[i] == '\\')
@@ -84,25 +84,26 @@ std::shared_ptr<std::vector<struct lexerToken>> tokenise(std::string script)
                         case('t'):stringContent += '\t';break;
                         case('r'):stringContent += '\r';break;
                         case('"'):stringContent += '"';break;
-                        default:stringContent += '\\';i--;break;
+                        case('\\'):stringContent += '\\';break;
+                        default:i--;break;
                     }
                     continue;
                 }
                 stringContent += script[i];
             }
-            tokens->push_back(lexerToken {"STRING_LITERAL", stringContent, line, stringStart - lineStart});
+            tokens.push_back(lexerToken {"STRING_LITERAL", stringContent, line, stringStart - lineStart});
             continue;
         }
         
-        if(script[i] == '('){tokens->push_back(lexerToken{"OPEN_PAREN", "(", line, i - lineStart});continue;}
-        if(script[i] == ')'){tokens->push_back(lexerToken{"CLOSE_PAREN", ")", line, i - lineStart});continue;}
-        if(script[i] == '{'){tokens->push_back(lexerToken{"OPEN_BRACE", "{", line, i - lineStart});continue;}
-        if(script[i] == '}'){tokens->push_back(lexerToken{"CLOSE_BRACE", "}", line, i - lineStart});continue;}
+        if(script[i] == '('){tokens.push_back(lexerToken{"OPEN_PAREN", "(", line, i - lineStart});continue;}
+        if(script[i] == ')'){tokens.push_back(lexerToken{"CLOSE_PAREN", ")", line, i - lineStart});continue;}
+        if(script[i] == '{'){tokens.push_back(lexerToken{"OPEN_BRACE", "{", line, i - lineStart});continue;}
+        if(script[i] == '}'){tokens.push_back(lexerToken{"CLOSE_BRACE", "}", line, i - lineStart});continue;}
         
         //any other token
         intmax_t tokenStart = i;
         while(script[i+1] != '(' && script[i+1] != ')' && script[i+1] != '{' && script[i+1] != '}' && !isspace(script[i+1]))i++;
-        tokens->push_back(lexerToken {"TOKEN", script.substr(tokenStart, i-tokenStart+1), line, tokenStart - lineStart});
+        tokens.push_back(lexerToken {"TOKEN", script.substr(tokenStart, i-tokenStart+1), line, tokenStart - lineStart});
         continue;
         
     }

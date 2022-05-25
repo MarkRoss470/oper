@@ -6,12 +6,12 @@
 
 std::shared_ptr<operValue> constructReference(std::shared_ptr<ASTNode> node, std::shared_ptr<operValue> scope)
 {
-    if(node->type == "Statement" && node->statements.size() == 1 && node->statements[0]->type == "Token")
+    if(node->type == ASTNodeType::Statement && node->statements.size() == 1 && node->statements[0]->type == ASTNodeType::Token)
     {
         return scope->getVariable(node->statements[0]->name);
     }
     
-    return std::shared_ptr<operValue> (new operValueReference(node, scope));
+    return std::make_shared<operValue> (operValueReference(node, scope));
 }
 
 
@@ -29,17 +29,17 @@ stackFrame::~stackFrame()
 
 std::shared_ptr<operValue> resolveTrivial(std::shared_ptr<ASTNode> node)
 {
-    if(node->type == "StringLiteral")return std::shared_ptr<operValue> (new operValueString(node->string_value));
-    else if(node->type == "IntegerLiteral")return std::shared_ptr<operValue> (new operValueInt(node->int_value));
-    else if(node->type == "FloatLiteral")return std::shared_ptr<operValue> (new operValueFloat(node->float_value));
-    throw "non trivial type '" + node->type + "' given";
+    if(node->type == ASTNodeType::StringLiteral)return std::make_shared<operValue> (operValueString(node->string_value));
+    else if(node->type == ASTNodeType::IntegerLiteral)return std::make_shared<operValue> (operValueInt(node->int_value));
+    else if(node->type == ASTNodeType::FloatLiteral)return std::make_shared<operValue> (operValueFloat(node->float_value));
+    throw "non trivial type '" + node->getType() + "' given";
 }
 
-#define SETDEFAULTOPERATOR(X,Y,Z) scriptValue->block_value.variables[X] = std::shared_ptr<operValue> (new operValueBuiltinOperator(X, Y, Z))
+#define SETDEFAULTOPERATOR(X,Y,Z) scriptValue->block_value.variables[X] = std::make_shared<operValue> (operValueBuiltinOperator(X, Y, Z))
 
 int executeScript(std::shared_ptr<ASTNode> script)
 {
-    std::shared_ptr<operValue> scriptValue (new operValueBlock(script, std::shared_ptr<operValue> (nullptr)));
+    std::shared_ptr<operValue> scriptValue = std::make_shared<operValue>(operValueBlock(script, std::shared_ptr<operValue> (nullptr)));
     
     //arithmetic
     SETDEFAULTOPERATOR("=", "Reference", "Value");
@@ -53,6 +53,7 @@ int executeScript(std::shared_ptr<ASTNode> script)
     SETDEFAULTOPERATOR("<", "Value", "Value");
     SETDEFAULTOPERATOR(">=", "Value", "Value");
     SETDEFAULTOPERATOR("<=", "Value", "Value");
+    SETDEFAULTOPERATOR("[]", "Value", "Value");
     
     SETDEFAULTOPERATOR(":", "Value", "Value");
     SETDEFAULTOPERATOR("return", "None", "Value");
@@ -78,14 +79,14 @@ int executeScript(std::shared_ptr<ASTNode> script)
     SETDEFAULTOPERATOR("input", "None", "Value");
     
     //consts
-    scriptValue->block_value.variables["True"] = std::shared_ptr<operValue> (new operValueBool(true));
-    scriptValue->block_value.variables["False"] = std::shared_ptr<operValue> (new operValueBool(false));
-    scriptValue->block_value.variables["None"] = std::shared_ptr<operValue> (new operValueNone());
+    scriptValue->block_value.variables["True"] = std::make_shared<operValue> (operValueBool(true));
+    scriptValue->block_value.variables["False"] = std::make_shared<operValue> (operValueBool(false));
+    scriptValue->block_value.variables["None"] = std::make_shared<operValue> (operValueNone());
     
     std::vector<std::shared_ptr<stackFrame>> callStack;
     callStack.push_back(
-        std::shared_ptr<stackFrame> (
-            new stackFrameBlock(scriptValue, 0)
+        std::make_shared<stackFrame> (
+            stackFrameBlock(scriptValue, 0)
         )
     );
     
@@ -101,7 +102,7 @@ int executeScript(std::shared_ptr<ASTNode> script)
         {
             if(current->statement.node->statements.size() == 0)
             {
-                callStack[callStack.size() - 2]->returnValue = std::shared_ptr<operValue> (new operValueNone());
+                callStack[callStack.size() - 2]->returnValue = std::make_shared<operValue> (operValueNone());
                 callStack.pop_back();
                 continue;
             }
@@ -118,7 +119,7 @@ int executeScript(std::shared_ptr<ASTNode> script)
                 {
                     current->statement.values[2] = current->statement.values[1];
                     current->statement.values[1] = current->statement.values[0];
-                    current->statement.values[0] = std::shared_ptr<operValue> (new operValueNone());
+                    current->statement.values[0] = std::make_shared<operValue> (operValueNone());
                 }
                 
                 /*
@@ -128,12 +129,12 @@ int executeScript(std::shared_ptr<ASTNode> script)
                 << current->statement.values[2]->toString() << "'\n";
                 */
                 
-                if(current->statement.values[1]->type == "Operator")
+                if(current->statement.values[1]->type == operValueType::Operator)
                 {
                     current->statement.values[1]->operator_value.block->block_value.variables["arg0"] = current->statement.values[0];
                     current->statement.values[1]->operator_value.block->block_value.variables["arg1"] = current->statement.values[2];
-                    callStack.push_back(std::shared_ptr<stackFrame> (new stackFrameBlock(
-                        std::shared_ptr<operValue> (new operValueBlockCopy(current->statement.values[1]->operator_value.block)),
+                    callStack.push_back(std::make_shared<stackFrame> (stackFrameBlock(
+                        std::make_shared<operValue> (operValueBlockCopy(current->statement.values[1]->operator_value.block)),
                         0
                     )));
                 }
@@ -147,17 +148,17 @@ int executeScript(std::shared_ptr<ASTNode> script)
             }
             else if(current->statement.values[0] && current->statement.node->statements.size() == 1)
             {
-                if(current->statement.values[0]->type == "Reference")
+                if(current->statement.values[0]->type == operValueType::Reference)
                 {
-                    if(current->statement.values[0]->reference_value.node->type == "Statement")
+                    if(current->statement.values[0]->reference_value.node->type == ASTNodeType::Statement)
                     {
-                        current = std::shared_ptr<stackFrame> (new stackFrameStatement(
+                        current = std::make_shared<stackFrame> (stackFrameStatement(
                             current->statement.values[0]->reference_value.node,
                             current->statement.values[0]->reference_value.scope
                         ));
                         continue;
                     }
-                    else if(current->statement.values[0]->reference_value.node->type == "Token")
+                    else if(current->statement.values[0]->reference_value.node->type == ASTNodeType::Token)
                     {
                         //std::cout << *current->statement.values[0]->reference_value.node->name << "\n";
                         callStack[callStack.size() - 2]->returnValue = current->statement.scope->getVariable(
@@ -166,9 +167,9 @@ int executeScript(std::shared_ptr<ASTNode> script)
                         callStack.pop_back();
                         continue;
                     }
-                    if(current->statement.values[0]->reference_value.node->type == "Statement")
+                    if(current->statement.values[0]->reference_value.node->type == ASTNodeType::Statement)
                     {
-                        callStack[callStack.size() - 2]->returnValue = std::shared_ptr<operValue> (new operValueBlock(
+                        callStack[callStack.size() - 2]->returnValue = std::make_shared<operValue> (operValueBlock(
                             current->statement.values[0]->reference_value.node,
                             current->statement.values[0]->reference_value.scope
                         ));
@@ -183,9 +184,9 @@ int executeScript(std::shared_ptr<ASTNode> script)
                         continue;
                     }
                 }
-                else if(current->statement.values[0]->type == "Block")
+                else if(current->statement.values[0]->type == operValueType::Block)
                 {
-                    current = std::shared_ptr<stackFrame> (new stackFrameBlock(
+                    current = std::make_shared<stackFrame> (stackFrameBlock(
                         current->statement.values[0],
                         0
                     ));
@@ -222,14 +223,14 @@ int executeScript(std::shared_ptr<ASTNode> script)
                     if(subStatement == operatorIndex)
                     {
                         //std::cout << "Type checking operator\n";
-                        if(current->returnValue->type == "Operator")
+                        if(current->returnValue->type == operValueType::Operator)
                         {
                             if(current->returnValue->operator_value.arg0type == "None")
                             {
                                 if(operatorIndex == 1)
                                 {
-                                    callStack[callStack.size() - 2]->returnValue = std::shared_ptr<operValue> (
-                                        new operValueException(
+                                    callStack[callStack.size() - 2]->returnValue = std::make_shared<operValue> (
+                                        operValueException(
                                             "ArgumentException", 
                                             "'" + current->returnValue->toString() + "' takes only 1 argument, but 2 were given"
                                         )
@@ -242,8 +243,8 @@ int executeScript(std::shared_ptr<ASTNode> script)
                             {
                                 if(operatorIndex == 0)
                                 {
-                                    callStack[callStack.size() - 2]->returnValue = std::shared_ptr<operValue> (
-                                        new operValueException(
+                                    callStack[callStack.size() - 2]->returnValue = std::make_shared<operValue> (
+                                        operValueException(
                                             "ArgumentException", 
                                             "'" + current->returnValue->toString() + "' takes 2 arguments, but only 1 was given"
                                         )
@@ -268,15 +269,15 @@ int executeScript(std::shared_ptr<ASTNode> script)
                                 );
                             }
                         }
-                        else if(current->returnValue->type == "BuiltinOperator")
+                        else if(current->returnValue->type == operValueType::BuiltinOperator)
                         {
                             //std::cout << "Checking arguments for '" << current->returnValue->toString() << "'\n";
                             if(current->returnValue->builtin_operator_value.arg0type == "None")
                             {
                                 if(operatorIndex == 1)
                                 {
-                                    callStack[callStack.size() - 2]->returnValue = std::shared_ptr<operValue> (
-                                        new operValueException(
+                                    callStack[callStack.size() - 2]->returnValue = std::make_shared<operValue> (
+                                        operValueException(
                                             "ArgumentException", 
                                             "'" + current->returnValue->toString() + "' takes only 1 argument, but 2 were given"
                                         )
@@ -289,8 +290,8 @@ int executeScript(std::shared_ptr<ASTNode> script)
                             {
                                 if(operatorIndex == 0)
                                 {
-                                    callStack[callStack.size() - 2]->returnValue = std::shared_ptr<operValue> (
-                                        new operValueException(
+                                    callStack[callStack.size() - 2]->returnValue = std::make_shared<operValue> (
+                                        operValueException(
                                             "ArgumentException", 
                                             "'" + current->returnValue->toString() + "' takes 2 arguments, but only 1 was given"
                                         )
@@ -315,7 +316,7 @@ int executeScript(std::shared_ptr<ASTNode> script)
                                 );
                             }
                         }
-                        else if(current->returnValue->type == "Exception")
+                        else if(current->returnValue->type == operValueType::Exception)
                         {
                             callStack[callStack.size() - 2]->returnValue = current->returnValue;
                             callStack.pop_back();
@@ -323,8 +324,8 @@ int executeScript(std::shared_ptr<ASTNode> script)
                         }
                         else if(current->statement.node->statements.size() > 1)
                         {
-                            callStack[callStack.size() - 2]->returnValue = std::shared_ptr<operValue> (
-                                new operValueException(
+                            callStack[callStack.size() - 2]->returnValue = std::make_shared<operValue> (
+                                operValueException(
                                     "TypeException", 
                                     "'" + current->returnValue->toString() + "' is not an operator"
                                 )
@@ -340,19 +341,19 @@ int executeScript(std::shared_ptr<ASTNode> script)
                 
                 //std::cout << subStatement << " " << (*current->statement.node->statements).size() << "\n";
                 //std::cout << (*current->statement.node->statements)[subStatement]->toString();
-                if(current->statement.node->statements[subStatement]->type == "Statement")
+                if(current->statement.node->statements[subStatement]->type == ASTNodeType::Statement)
                 {
-                    callStack.push_back(std::shared_ptr<stackFrame> (
-                        new stackFrameStatement(current->statement.node->statements[subStatement], current->statement.scope)
+                    callStack.push_back(std::make_shared<stackFrame> (
+                        stackFrameStatement(current->statement.node->statements[subStatement], current->statement.scope)
                     ));
                 }
-                else if(current->statement.node->statements[subStatement]->type == "Block")
+                else if(current->statement.node->statements[subStatement]->type == ASTNodeType::Block)
                 {
-                    current->returnValue = std::shared_ptr<operValue> (
-                        new operValueBlock(current->statement.node->statements[subStatement], current->statement.scope)
+                    current->returnValue = std::make_shared<operValue> (
+                        operValueBlock(current->statement.node->statements[subStatement], current->statement.scope)
                     );
                 }
-                else if(current->statement.node->statements[subStatement]->type == "Token")
+                else if(current->statement.node->statements[subStatement]->type == ASTNodeType::Token)
                 {
                     current->returnValue = current->statement.scope->getVariable(
                         current->statement.node->statements[subStatement]->name
@@ -371,20 +372,20 @@ int executeScript(std::shared_ptr<ASTNode> script)
             {
                 //std::cout << "Return value was " << current->returnValue->toString() << "\n";
                 //if previous statement returned a block, execute it
-                if(current->returnValue->type == "Block")
+                if(current->returnValue->type == operValueType::Block)
                 {
-                    callStack.push_back(std::shared_ptr<stackFrame> (
-                        new stackFrameBlock(current->returnValue, 0)
+                    callStack.push_back(std::make_shared<stackFrame> (
+                        stackFrameBlock(current->returnValue, 0)
                     ));
                     continue;
                 }
                 //if the previous statement returned a ReturnValue, return it
-                if(current->returnValue->type == "ReturnValue")
+                if(current->returnValue->type == operValueType::ReturnValue)
                 {
                     if(callStack.size() == 1)
                     {
-                        callStack[callStack.size() - 2]->returnValue = std::shared_ptr<operValue> (
-                            new operValueException(
+                        callStack[callStack.size() - 2]->returnValue = std::make_shared<operValue> (
+                            operValueException(
                                 "TypeException",
                                 "return outside a block"
                             )
@@ -397,7 +398,7 @@ int executeScript(std::shared_ptr<ASTNode> script)
                     continue;
                 }
                 //propagate exceptions up callstack
-                if(current->returnValue->type == "Exception")
+                if(current->returnValue->type == operValueType::Exception)
                 {
                     
                     current->returnValue->exception_value.trace.push_back(std::make_tuple(
@@ -431,15 +432,15 @@ int executeScript(std::shared_ptr<ASTNode> script)
             {
                 if(callStack.size() > 1)
                 {
-                    callStack[callStack.size() - 2]->returnValue = std::shared_ptr<operValue> (new operValueNone());
+                    callStack[callStack.size() - 2]->returnValue = std::make_shared<operValue> (operValueNone());
                 }
                 callStack.pop_back();
                 continue;
             }
             current->block.statementIndex++;
             
-            callStack.push_back(std::shared_ptr<stackFrame> (
-                new stackFrameStatement(current->block.value->block_value.block->statements[current->block.statementIndex-1], current->block.value)
+            callStack.push_back(std::make_shared<stackFrame> (
+                stackFrameStatement(current->block.value->block_value.block->statements[current->block.statementIndex-1], current->block.value)
             ));
         }
     }

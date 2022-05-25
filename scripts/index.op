@@ -1,5 +1,4 @@
 index = "Value" : {
 	length = ((len arg0) - arg1) - 1
-	print length
 	return arg1 - arg0 - length
 } : "Value"

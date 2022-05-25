@@ -1,0 +1,16 @@
+#name Escape characters
+#exit 0
+#input
+#code
+print "newline:\n"
+print "escaped quote: \""
+print "escaped backslash: \\"
+print "two backslashes: \\\\"
+print "backslash quote: \\\""
+#output
+newline:
+
+escaped quote: "
+escaped backslash: \
+two backslashes: \\
+backslash quote: \"

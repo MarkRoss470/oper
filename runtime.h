@@ -5,6 +5,9 @@
 class stackFrame
 {
     public:
+        inline stackFrame(std::shared_ptr<ASTNode> n, std::shared_ptr<operValue> v[3], std::shared_ptr<operValue> s) : isStatement(true), statement{.node=n, .values={v[0], v[1], v[2]}, .scope=s} {}
+        inline stackFrame(std::shared_ptr<operValue> v, int i) : isStatement(false), block{.value=v, .statementIndex=i} {}
+    
         bool isStatement;
         std::shared_ptr<operValue> returnValue;
         ~stackFrame();
@@ -24,8 +27,8 @@ class stackFrame
         };
 };
 
-#define stackFrameBlock(X,Y) stackFrame{.isStatement=false, .block={.value=X, .statementIndex=Y}}
-#define stackFrameStatement(X,Z) stackFrame{.isStatement=true, .statement={.node=X, .values={nullptr, nullptr, nullptr}, .scope=Z}}
+#define stackFrameBlock(X,Y) (std::shared_ptr<operValue>)(X), (int)(Y)
+#define stackFrameStatement(X,Z) (std::shared_ptr<ASTNode>)(X), (std::shared_ptr<operValue>[3]){nullptr, nullptr, nullptr}, (std::shared_ptr<operValue>)(Z)
 
 int executeScript(std::shared_ptr<ASTNode> script);
 

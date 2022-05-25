@@ -18,3 +18,5 @@ custom_operator.test
 operator_reference.test
 big_int.test
 not_operator.test
+escape_chars.test
+quine.test

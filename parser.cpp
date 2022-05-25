@@ -1,6 +1,7 @@
 #include "parser.h"
 #include <iostream>
 #include <sstream>
+#include <map>
 
 template <typename T> std::string tostr(const T& t) { 
    std::ostringstream os; 
@@ -8,11 +9,10 @@ template <typename T> std::string tostr(const T& t) {
    return os.str(); 
 } 
 
-std::shared_ptr<ASTNode> parseAST(std::shared_ptr<std::vector<struct lexerToken>> tokensptr, std::string file)
+std::shared_ptr<ASTNode> parseAST(std::vector<struct lexerToken> tokens, std::string file)
 {
-    std::vector<struct lexerToken> tokens = *tokensptr;
-    std::shared_ptr<ASTNode> root (new ASTNodeBlock(nullptr, 0, 0, file));
-    std::shared_ptr<ASTNode> current (new ASTNodeStatement(root, 0, 0, file));
+    std::shared_ptr<ASTNode> root = std::make_shared<ASTNode>(ASTNodeBlock(nullptr, 0, 0, file));
+    std::shared_ptr<ASTNode> current = std::make_shared<ASTNode>(ASTNodeStatement(root, 0, 0, file));
     root->statements.push_back(current);
     for(size_t i = 0; i < tokens.size(); i++)
     {
@@ -23,8 +23,8 @@ std::shared_ptr<ASTNode> parseAST(std::shared_ptr<std::vector<struct lexerToken>
         }
         if(tokens[i].type == "INTEGER_LITERAL")
             current->statements.push_back(
-                std::shared_ptr<ASTNode> (
-                    new ASTNodeInt(
+                std::make_shared<ASTNode> (
+                    ASTNodeInt(
                         BigInteger(tokens[i].value), 
                         current, tokens[i].line, 
                         tokens[i].column,
@@ -34,8 +34,8 @@ std::shared_ptr<ASTNode> parseAST(std::shared_ptr<std::vector<struct lexerToken>
             );
         else if(tokens[i].type == "FLOAT_LITERAL")
             current->statements.push_back(
-                std::shared_ptr<ASTNode> (
-                    new ASTNodeFloat(
+                std::make_shared<ASTNode> (
+                    ASTNodeFloat(
                         stof(tokens[i].value), 
                         current, 
                         tokens[i].line, 
@@ -46,8 +46,8 @@ std::shared_ptr<ASTNode> parseAST(std::shared_ptr<std::vector<struct lexerToken>
             );
         else if(tokens[i].type == "STRING_LITERAL")
             current->statements.push_back(
-                std::shared_ptr<ASTNode> (
-                    new ASTNodeString(
+                std::make_shared<ASTNode> (
+                    ASTNodeString(
                         tokens[i].value, 
                         current, 
                         tokens[i].line, 
@@ -58,8 +58,8 @@ std::shared_ptr<ASTNode> parseAST(std::shared_ptr<std::vector<struct lexerToken>
             );
         else if(tokens[i].type == "TOKEN")
             current->statements.push_back(
-                std::shared_ptr<ASTNode> (
-                    new ASTNodeToken(
+                std::make_shared<ASTNode> (
+                    ASTNodeToken(
                         tokens[i].value, 
                         current, 
                         tokens[i].line, 
@@ -70,17 +70,17 @@ std::shared_ptr<ASTNode> parseAST(std::shared_ptr<std::vector<struct lexerToken>
             );
         else if(tokens[i].type == "NEWLINE")
         {
-            if(current->parent->type != "Block")
+            if(current->parent->type != ASTNodeType::Block)
             {
                 std::cout << "Unmatched paren at " << current->line << ":" << current->column << "\n";
                 return nullptr;
             }
-            if(current->statements.size() > 0 && current->parent->type == "Block")
+            if(current->statements.size() > 0 && current->parent->type == ASTNodeType::Block)
             {
                 while(current->statements.size() > 3)
                 {
-                    std::shared_ptr<ASTNode> subStatement = std::shared_ptr<ASTNode> (
-                        new ASTNodeStatement(
+                    std::shared_ptr<ASTNode> subStatement = std::make_shared<ASTNode> (
+                        ASTNodeStatement(
                             current,
                             current->statements[current->statements.size() - 3]->line, 
                             current->statements[current->statements.size() - 3]->column,
@@ -95,8 +95,8 @@ std::shared_ptr<ASTNode> parseAST(std::shared_ptr<std::vector<struct lexerToken>
                 }
             
                 current->parent->statements.push_back(
-                    std::shared_ptr<ASTNode> (
-                        new ASTNodeStatement(
+                    std::make_shared<ASTNode> (
+                        ASTNodeStatement(
                             current->parent, 
                             -1, 
                             -1,
@@ -110,8 +110,8 @@ std::shared_ptr<ASTNode> parseAST(std::shared_ptr<std::vector<struct lexerToken>
         else if(tokens[i].type == "OPEN_PAREN")
         {
             current->statements.push_back(
-                std::shared_ptr<ASTNode> (
-                    new ASTNodeStatement(
+                std::make_shared<ASTNode> (
+                    ASTNodeStatement(
                         current, 
                         tokens[i].line, 
                         tokens[i].column,
@@ -124,8 +124,8 @@ std::shared_ptr<ASTNode> parseAST(std::shared_ptr<std::vector<struct lexerToken>
         else if(tokens[i].type == "OPEN_BRACE")
         {
             current->statements.push_back(
-                std::shared_ptr<ASTNode> (
-                    new ASTNodeBlock(
+                std::make_shared<ASTNode> (
+                    ASTNodeBlock(
                         current, 
                         tokens[i].line, 
                         tokens[i].column,
@@ -136,8 +136,8 @@ std::shared_ptr<ASTNode> parseAST(std::shared_ptr<std::vector<struct lexerToken>
             current = current->statements.back();
             
             current->statements.push_back(
-                std::shared_ptr<ASTNode> (
-                    new ASTNodeStatement(
+                std::make_shared<ASTNode> (
+                    ASTNodeStatement(
                         current,
                         -1,    
                         -1,
@@ -150,15 +150,15 @@ std::shared_ptr<ASTNode> parseAST(std::shared_ptr<std::vector<struct lexerToken>
         }
         else if(tokens[i].type == "CLOSE_PAREN")
         {
-            if(current->parent->type != "Statement")
+            if(current->parent->type != ASTNodeType::Statement)
             {
                 std::cout << "Unmatched brace at " << current->line << ":" << current->column << "\n";
                 return nullptr;
             }
             while(current->statements.size() > 3)
             {
-                std::shared_ptr<ASTNode> subStatement = std::shared_ptr<ASTNode> (
-                    new ASTNodeStatement(
+                std::shared_ptr<ASTNode> subStatement = std::make_shared<ASTNode> (
+                    ASTNodeStatement(
                         current,
                         current->statements[current->statements.size() - 3]->line, 
                         current->statements[current->statements.size() - 3]->column,
@@ -176,7 +176,7 @@ std::shared_ptr<ASTNode> parseAST(std::shared_ptr<std::vector<struct lexerToken>
         }
         else if(tokens[i].type == "CLOSE_BRACE")
         {
-            if(current->parent->type != "Block" || current->parent == root)
+            if(current->parent->type != ASTNodeType::Block || current->parent == root)
             {
                 std::cout << "Unmatched paren at " << current->line << ":" << current->column << "\n";
                 return nullptr;
@@ -190,8 +190,8 @@ std::shared_ptr<ASTNode> parseAST(std::shared_ptr<std::vector<struct lexerToken>
             }
             while(current->statements.size() > 3)
             {
-                std::shared_ptr<ASTNode> subStatement = std::shared_ptr<ASTNode> (
-                    new ASTNodeStatement(
+                std::shared_ptr<ASTNode> subStatement = std::make_shared<ASTNode> (
+                    ASTNodeStatement(
                         current,
                         current->statements[current->statements.size() - 3]->line, 
                         current->statements[current->statements.size() - 3]->column,
@@ -216,7 +216,7 @@ std::shared_ptr<ASTNode> parseAST(std::shared_ptr<std::vector<struct lexerToken>
     
     if(current != root)
     {
-        if(current->type == "Block")std::cout << "Unmatched brace at " << current->line << ":" << current->column << "\n";
+        if(current->type == ASTNodeType::Block)std::cout << "Unmatched brace at " << current->line << ":" << current->column << "\n";
         else std::cout << "Unmatched paren at " << current->line << ":" << current->column << "\n";
         return nullptr;
     }
@@ -232,13 +232,13 @@ std::ostream& operator << (std::ostream& os, ASTNode& node)
 std::string ASTNode::toString(int indent)
 {
     std::string result(indent, ' ');
-    result += type + " " + tostr<intmax_t>(line) + ":" + tostr<intmax_t>(column) + " ";
-    if(type == "StringLiteral")result += "'" + string_value + "'";
-    else if(type == "IntegerLiteral")result += (std::string)BigInteger(int_value);
-    else if(type == "FloatLiteral")result += tostr<double>(float_value);
-    else if(type == "IntegerLiteral")result += (std::string)BigInteger(int_value);
-    else if(type == "Token")result += "'" + name + "'";
-    else if(type == "Statement" || type == "Block")
+    result += getType() + " " + tostr<intmax_t>(line) + ":" + tostr<intmax_t>(column) + " ";
+    if(type == ASTNodeType::StringLiteral)result += "'" + string_value + "'";
+    else if(type == ASTNodeType::IntegerLiteral)result += (std::string)BigInteger(int_value);
+    else if(type == ASTNodeType::FloatLiteral)result += tostr<double>(float_value);
+    else if(type == ASTNodeType::IntegerLiteral)result += (std::string)BigInteger(int_value);
+    else if(type == ASTNodeType::Token)result += "'" + name + "'";
+    else if(type == ASTNodeType::Statement || type == ASTNodeType::Block)
     {
         result += "[\n";
         for(std::shared_ptr<ASTNode>& statement : statements)
@@ -249,7 +249,7 @@ std::string ASTNode::toString(int indent)
     }
     else
     {
-        throw "Unknown type '" + type + "'";
+        throw "Unknown type '" + getType() + "'";
     }
     result += "\n";
     return result;    
@@ -257,12 +257,24 @@ std::string ASTNode::toString(int indent)
 
 ASTNode::~ASTNode()
 {
-    if(type == "StringLiteral")std::destroy_at(&string_value);
-    if(type == "Token")std::destroy_at(&name);
-    if(type == "Statement" || type == "Block")std::destroy_at(&statements);
+    if(type == ASTNodeType::StringLiteral)std::destroy_at(&string_value);
+    if(type == ASTNodeType::Token)std::destroy_at(&name);
+    if(type == ASTNodeType::Statement || type == ASTNodeType::Block)std::destroy_at(&statements);
 }
 
+static const std::map<ASTNodeType, std::string> typeNames = {
+{ASTNodeType::IntegerLiteral, "IntegerLiteral"},
+{ASTNodeType::FloatLiteral, "FloatLiteral"},
+{ASTNodeType::StringLiteral, "StringLiteral"},
+{ASTNodeType::Token, "Token"},
+{ASTNodeType::Statement, "Statement"},
+{ASTNodeType::Block, "Block"}
+};
 
+std::string ASTNode::getType()
+{
+    return typeNames.at(type);
+}
 
 
 

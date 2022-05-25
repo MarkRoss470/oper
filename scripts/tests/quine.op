@@ -1,0 +1,39 @@
+strindex = "Value" : {
+    length = ((len arg0) - arg1) - 1
+    return arg1 - arg0 - length
+} : "Value"
+code = "strindex = \"Value\" : {\n    length = ((len arg0) - arg1) - 1\n    return arg1 - arg0 - length\n} : \"Value\"\ncode = \"\"\nescaped = \"\"\ni = -1\n{\n    i = i + 1\n    (i == (len code)) * (return ())\n    t = (this ())\n    char = code strindex i\n    (char == \"\\n\") * {\n        escaped = escaped + \"\\\\n\"\n        return (return t)\n    }\n    (char == \"\\\"\") * {\n        escaped = escaped + \"\\\\\\\"\"\n        return (return t)\n    }\n    (char == \"\\\\\") * {\n        escaped = escaped + \"\\\\\\\\\"\n        return (return t)\n    }\n    escaped = escaped + char\n    return t\n}\ni = -1\nresult = \"\"\nquotes = 0\n{\n    i = i + 1\n    (i == (len code)) * (return ())\n    result = result + code strindex i\n    ((code strindex i) == \"\\\"\") * {quotes = quotes + 1}\n    (quotes == 5) * {result = result + escaped}\n    return (this())\n}\nprint result"
+escaped = ""
+i = -1
+{
+    i = i + 1
+    (i == (len code)) * (return ())
+    t = (this ())
+    char = code strindex i
+    (char == "\n") * {
+        escaped = escaped + "\\n"
+        return (return t)
+    }
+    (char == "\"") * {
+        escaped = escaped + "\\\""
+        return (return t)
+    }
+    (char == "\\") * {
+        escaped = escaped + "\\\\"
+        return (return t)
+    }
+    escaped = escaped + char
+    return t
+}
+i = -1
+result = ""
+quotes = 0
+{
+    i = i + 1
+    (i == (len code)) * (return ())
+    result = result + code strindex i
+    ((code strindex i) == "\"") * {quotes = quotes + 1}
+    (quotes == 5) * {result = result + escaped}
+    return (this())
+}
+print result

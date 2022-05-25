@@ -16,6 +16,7 @@ std::shared_ptr<operValue> operatorLength(std::shared_ptr<operValue> arg0, std::
 std::shared_ptr<operValue> operatorThrow(std::shared_ptr<operValue> arg0, std::shared_ptr<operValue> arg1);
 std::shared_ptr<operValue> operatorMessage(std::shared_ptr<operValue> arg0, std::shared_ptr<operValue> arg1);
 std::shared_ptr<operValue> operatorExtype(std::shared_ptr<operValue> arg0, std::shared_ptr<operValue> arg1);
+std::shared_ptr<operValue> operatorStringIndex(std::shared_ptr<operValue> arg0, std::shared_ptr<operValue> arg1);
 std::shared_ptr<operValue> castInt(std::shared_ptr<operValue> arg0, std::shared_ptr<operValue> arg1);
 std::shared_ptr<operValue> castString(std::shared_ptr<operValue> arg0, std::shared_ptr<operValue> arg1);
 std::shared_ptr<operValue> castFloat(std::shared_ptr<operValue> arg0, std::shared_ptr<operValue> arg1);
