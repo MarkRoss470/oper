@@ -5,7 +5,7 @@ OBJS=$(patsubst ./%.cpp,./build/%.o,$(CPP_SOURCES))
 
 .PHONY=all test clean
 
-dall : ./build/oper
+all : ./build/oper
 	./build/oper test.op
 
 ./build/oper: $(OBJS)
